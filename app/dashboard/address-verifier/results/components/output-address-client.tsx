@@ -17,6 +17,7 @@ import {
   useInputAddressStore,
   useOutputAddressStore,
 } from "@/zustand/address";
+import axios from "axios";
 import { ArrowRight, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -104,17 +105,41 @@ const OutputAddressesClient = () => {
                       )}
                     </TableCell>
                     <TableCell>
-  <Button
-    variant="link"
-    disabled={danger}
-    onClick={() => {
-      setInputAddress(address);
+                    <Button
+  variant="link"
+  disabled={danger}
+  onClick={async () => {
+    setInputAddress(address);
+    
+    try {
+      const response = await axios.post(`http://127.0.0.1:5000/correct-address`, {
+        address: outputAddresses[index].corrected_address,
+      });
+      
+  
+      if (response.data && response.data.output) {
+        console.log(response.data.output);
+        
+        outputAddresses[index].corrected_address = response.data.output;
+        setOutputAddress(outputAddresses[index]);
+        router.push(`/dashboard/address-verifier/map`);
+      } else {
+        
+        setOutputAddress(outputAddresses[index]);
+        router.push(`/dashboard/address-verifier/map`);
+  
+      }
+    } catch (error) {
+      
       setOutputAddress(outputAddresses[index]);
       router.push(`/dashboard/address-verifier/map`);
-    }}
-  >
-    See on Map <ArrowRight className="size-4 ml-2" />
-  </Button>
+  
+    }
+  }}
+>
+  See on Map <ArrowRight className="size-4 ml-2" />
+</Button>
+
 </TableCell>
 
                   </TableRow>

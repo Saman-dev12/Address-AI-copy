@@ -7,14 +7,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ResponsiveContainer from '@/app/responsive-container';
 import { useOutputAddressStore } from '@/zustand/address';
 
-// Dynamically import Leaflet components
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then((mod) => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then((mod) => mod.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then((mod) => mod.Popup), { ssr: false });
 
-// Import Leaflet CSS
 import 'leaflet/dist/leaflet.css';
+import Link from 'next/link';
+import {  ExternalLinkIcon } from 'lucide-react';
 
 const MapPage = () => {
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
@@ -59,7 +59,18 @@ const MapPage = () => {
             <CardTitle>Address on Map</CardTitle>
           </CardHeader>
           <CardContent>
-            <p><strong>Address:</strong> {outputAddress?.corrected_address}</p>
+                <Link
+                    href={`https://www.google.com/maps/search/?api=1&query=${outputAddress?.corrected_address}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center hover:bg-gray-100 p-2 rounded-md" 
+                    >
+                    
+                    <strong>Address: </strong> {outputAddress?.corrected_address}
+                    <ExternalLinkIcon className="h-4 w-4 ml-2" /> 
+                
+                
+                </Link>
           </CardContent>
         </Card>
 

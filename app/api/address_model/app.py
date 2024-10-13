@@ -53,5 +53,26 @@ def ocr():
     finally:
         os.remove(file_path)
 
+@app.route('/correct-address', methods=['POST'])
+def correct_address():
+    data = request.get_json()
+    address = data.get("address", "")
+    model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
+    address = address.replace("\n", " ")
+    try:
+        response = model.generate_content([
+            f"Please take the following address and ensure it is complete and formatted correctly for mapping services and return the corrected address and only the corrected address not any explaination,Here is the address,I am trying to make an Address AI which verifies the address is correct or not for the ecommerce companies: {address}"
+        ])
+
+        # print(response)
+        if(response == None):
+            return jsonify("output",address)
+        return jsonify({"output": response.text})
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     app.run(debug=True)
