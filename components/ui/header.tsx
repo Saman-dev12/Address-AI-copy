@@ -1,76 +1,64 @@
-'use client'
+import Link from "next/link";
+import { Button } from "./button";
+import { useMedia } from "react-use";
+import { Sheet, SheetContent, SheetTrigger } from "./sheet";
+import { Menu } from "lucide-react";
+import { useState } from "react";
 
-import Link from "next/link"
-import { useState } from "react"
-import { useMedia } from "react-use"
-import { Menu } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+const Header = () => {
+  const isMobile = useMedia("(max-width: 1024px)", false);
+  const [isOpen, setIsOpen] = useState(false);
 
-const navItems = ["Home", "Features", "Pricing", "Documentation"]
-
-export default function Header() {
-  const isMobile = useMedia("(max-width: 1024px)", false)
-  const [isOpen, setIsOpen] = useState(false)
-
-  const NavItems = ({ mobile = false }: { mobile?: boolean }) => (
-    <>
-      {navItems.map((item) => (
-        <Button
-          key={item}
-          variant="ghost"
-          asChild
-          className={`${
-            mobile
-              ? "justify-start py-6 text-base bg-black hover:bg-gray-900 w-full"
-              : "opacity-60 hover:bg-white/5 hover:opacity-100"
-          } transition-colors duration-300`}
-        >
-          <Link href={`/${item.toLowerCase()}`}>{item}</Link>
-        </Button>
-      ))}
-    </>
-  )
-
-  const MobileNav = () => (
+  const mobileNav = (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
+      <SheetTrigger>
         <Button
-          size="sm"
-          variant="outline"
-          className="lg:w-auto justify-between bg-white/10 text-white font-normal hover:bg-white/20 hover:text-white border-none focus-visible:ring-offset-0 focus-visible:ring-transparent outline-none focus:bg-white/30 transition"
-
+          size={"sm"}
+          variant={"outline"}
+          className="w-full lg:w-auto justify-between bg-white/10 text-white font-normal hover:bg-white/20 hover:text-white border-none focus-visible:ring-offset-0 focus-visible:ring-transparent outline-none focus:bg-white/30 transition"
         >
-          <Menu className="h-4 w-4" />
+          <Menu className="size-4" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-black text-white">
-        <SheetHeader>
-          <SheetTitle className="text-white">Navigation</SheetTitle>
-          <SheetDescription className="text-gray-400">
-            Access different sections of AddressAI
-          </SheetDescription>
-        </SheetHeader>
-        <nav className="flex flex-col mt-4 space-y-2">
-          <NavItems mobile />
+      <SheetContent side={"left"} className="px-2 bg-black text-white">
+        <nav className="pt-7 flex flex-col">
+          {["Home", "Features", "Pricing", "Documentation"].map(
+            (route, index) => (
+              <Button
+                key={index}
+                className="justify-start py-8 text-base bg-black border-b border-gray-700/40"
+              >
+                {route}
+              </Button>
+            )
+          )}
         </nav>
         <Button
           variant="outline"
-          asChild
           className="bg-gradient-to-br mt-8 w-full from-purple-500 to-purple-700 text-gray-200 hover:opacity-80 hover:text-gray-200 transition-colors duration-300 border-none rounded-xl py-5"
         >
           <Link href="/sign-in">Login</Link>
         </Button>
       </SheetContent>
     </Sheet>
-  )
+  );
+
+  const desktopNav = (
+    <nav>
+      <ul className="flex space-x-6">
+        {["Home", "Features", "Pricing", "Documentation"].map((item) => (
+          <li key={item}>
+            <Link
+              href={`/${item.toLowerCase()}`}
+              className="opacity-60 hover:bg-white/5 hover:opacity-100 transition-colors duration-300"
+            >
+              {item}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-gray-950/20">
@@ -108,25 +96,18 @@ export default function Header() {
             AddressAI
           </Link>
         </div>
-        {isMobile ? (
-          <MobileNav />
-        ) : (
-          <>
-            <nav>
-              <ul className="flex space-x-6">
-                <NavItems />
-              </ul>
-            </nav>
-            <Button
-              variant="outline"
-              asChild
-              className="bg-gradient-to-br from-purple-500 to-purple-700 text-gray-200 hover:opacity-80 hover:text-gray-200 transition-colors duration-300 border-none"
-            >
-              <Link href="/sign-in">Login</Link>
-            </Button>
-          </>
+        {isMobile ? mobileNav : desktopNav}
+        {isMobile ? null : (
+          <Button
+            variant="outline"
+            className="bg-gradient-to-br from-purple-500 to-purple-700 text-gray-200 hover:opacity-80 hover:text-gray-200 transition-colors duration-300 border-none"
+          >
+            <Link href="/sign-in">Login</Link>
+          </Button>
         )}
       </div>
     </header>
-  )
-}
+  );
+};
+
+export default Header;

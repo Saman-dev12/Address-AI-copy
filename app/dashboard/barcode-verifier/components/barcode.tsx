@@ -1,32 +1,29 @@
-"use client"
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react'
-import { BrowserMultiFormatReader,IScannerControls } from '@zxing/browser'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, Loader2, Upload, Camera } from "lucide-react"
-import { BrowserMultiFormatReader as BrowserMultiFormatReader2, NotFoundException } from '@zxing/library';
+import React, { useState, useRef, useEffect } from 'react';
+import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, Loader2, Upload, Camera } from "lucide-react";
+import { IScannerControls } from '@zxing/browser';
 
 export default function BarcodeScanner() {
-  const [file, setFile] = useState<File | null>(null)
-  const [extractedText, setExtractedText] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [isScanning, setIsScanning] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const codeReader = useRef(new BrowserMultiFormatReader())
-  const stopDecoding = useRef<(() => void) | null>(null)
-
+  const [file, setFile] = useState<File | null>(null);
+  const [extractedText, setExtractedText] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const codeReader = useRef(new BrowserMultiFormatReader());
+  const [scannerControls, setScannerControls] = useState<IScannerControls | null>(null);
 
   // Cleanup on component unmount
   useEffect(() => {
     return () => {
-      if (stopDecoding.current) {
-        stopDecoding.current()
-      }
-    }
-  }, [])
+      stopBarcodeScanning();
+    };
+  }, []);
 
   // Handle file selection for barcode image upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,10 +34,9 @@ export default function BarcodeScanner() {
     }
   };
 
- 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!file) {
       setError("Please upload an image file first.");
       return;
@@ -51,8 +47,7 @@ export default function BarcodeScanner() {
       const imageSrc = e.target?.result as string;
       if (imageSrc) {
         try {
-          const codeReader = new BrowserMultiFormatReader2();
-          const result = await codeReader.decodeFromImage(undefined, imageSrc);
+          const result = await codeReader.current.decodeFromImage(undefined, imageSrc);
           setExtractedText(result.getText());
           setError(null);
         } catch (err) {
@@ -68,40 +63,36 @@ export default function BarcodeScanner() {
     reader.readAsDataURL(file);
   };
 
-  const [scannerControls, setScannerControls] = useState<IScannerControls | null>(null);
-
   const startBarcodeScanning = async () => {
     setIsScanning(true);
     setError(null);
-  
+
     try {
-      // Get the available video input devices (cameras)
-      const videoInputDevices = await BrowserMultiFormatReader.listVideoInputDevices();
+      // Enumerate video input devices
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
+
       if (videoInputDevices.length === 0) {
         setError("No camera devices found.");
         setIsScanning(false);
         return;
       }
-  
+
       // Use the first available device as the default
       const selectedDeviceId = videoInputDevices[0].deviceId;
-  
+
       // Request camera access
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined }
+        video: { deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined },
       });
-  
+
       // Assign the stream to the video element
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.play();
-  
+
         // Start decoding from the video device continuously
-        const codeReaderInstance = new BrowserMultiFormatReader();
-        codeReader.current = codeReaderInstance;
-  
-        // Use 'decodeFromVideoDevice' method and store controls
-        const controls = await codeReaderInstance.decodeFromVideoDevice(
+        await codeReader.current.decodeFromVideoDevice(
           selectedDeviceId,
           videoRef.current,
           (result, err) => {
@@ -114,9 +105,6 @@ export default function BarcodeScanner() {
             }
           }
         );
-  
-        // Store the controls object to stop it later
-        setScannerControls(controls);
       } else {
         setError("Video reference is not available.");
       }
@@ -126,25 +114,23 @@ export default function BarcodeScanner() {
       setIsScanning(false);
     }
   };
-  
+
   // Function to stop the barcode scanning
   const stopBarcodeScanning = () => {
     if (scannerControls) {
       scannerControls.stop(); // Stop barcode scanning
       setScannerControls(null); // Clear the controls
     }
-  
+
     // Stop the video stream if it exists
     if (videoRef.current?.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach(track => track.stop()); // Stop all tracks
       videoRef.current.srcObject = null; // Clear the video source
     }
-  
+
     setIsScanning(false);
   };
-  
-
 
   return (
     <Card className="w-full mx-auto">
@@ -165,7 +151,7 @@ export default function BarcodeScanner() {
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   PNG, JPG or PDF (MAX. 10MB)
-                </p>              
+                </p>
               </div>
               <Input
                 id="file-upload"
@@ -181,7 +167,7 @@ export default function BarcodeScanner() {
               </p>
             )}
           </div>
-          
+
           <Button type="submit" className="w-full" disabled={isLoading || isScanning}>
             {isLoading ? (
               <>
@@ -222,7 +208,7 @@ export default function BarcodeScanner() {
             <video ref={videoRef} className="w-full" />
           </div>
         )}
-        
+
         {error && (
           <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-lg dark:bg-red-900 dark:text-red-100">
             {error}
@@ -239,5 +225,5 @@ export default function BarcodeScanner() {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

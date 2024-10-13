@@ -2,9 +2,9 @@ import SideNav from "./components/side-nav";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
+    <div className="bg-gray-100 min-h-screen p-5">
       <SideNav />
-      <div className="flex-grow lg:ml-72 p-4 lg:p-8">{children}</div>
+      {children}
     </div>
   );
 };

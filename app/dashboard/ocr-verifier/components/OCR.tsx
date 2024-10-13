@@ -1,23 +1,24 @@
-'use client'
+"use client";
 
-import React, { useEffect, useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, Loader2, Upload } from "lucide-react"
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, Loader2, Upload } from "lucide-react";
+import axios from "axios";
 
 export default function OCRV() {
-  const [file, setFile] = useState<File | null>(null)
-  const [extractedText, setExtractedText] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [imageData, setImageData] = useState<string | null>(null)
+  const [file, setFile] = useState<File | null>(null);
+  const [extractedText, setExtractedText] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [imageData, setImageData] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0])
-      setExtractedText(null)
-      setError(null)
+      setFile(e.target.files[0]);
+      setExtractedText(null);
+      setError(null);
       const reader = new FileReader();
       reader.onloadend = () => {
         const imageDataUri = reader.result;
@@ -25,47 +26,48 @@ export default function OCRV() {
       };
       reader.readAsDataURL(e.target.files[0]);
     }
-  }
-
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!file) {
-      setError("Please select an image file.")
-      return
+      setError("Please select an image file.");
+      return;
     }
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
-    const formData = new FormData()
-    formData.append('file', file)  // Correctly sending the file to the backend
+    const formData = new FormData();
+    formData.append("file", file);
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/ocr', {
-        method: 'POST',
-        body: formData,
-      })
+      const response = await axios.post(`http://127.0.0.1:5000/ocr`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-      if (!response.ok) {
-        throw new Error('OCR processing failed')
+      if (!response.data) {
+        throw new Error("OCR processing failed");
       }
 
-      const data = await response.json()
-      console.log(data.output)
-      setExtractedText(data.output)
+      const data = await response.data;
+      console.log(data.output);
+      setExtractedText(data.output);
     } catch (err) {
-      setError("Failed to process the image. Please try again.")
+      setError("Failed to process the image. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-  
+  };
 
   return (
     <Card className="w-full mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">OCR Image Extractor</CardTitle>
+        <CardTitle className="text-2xl font-bold">
+          OCR Image Extractor
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -77,7 +79,8 @@ export default function OCRV() {
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <Upload className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" />
                 <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                  <span className="font-semibold">Click to upload</span> or drag and drop
+                  <span className="font-semibold">Click to upload</span> or drag
+                  and drop
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   PNG, JPG or PDF (MAX. 10MB)
@@ -97,7 +100,7 @@ export default function OCRV() {
               </p>
             )}
           </div>
-          
+
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? (
               <>
@@ -112,7 +115,7 @@ export default function OCRV() {
             )}
           </Button>
         </form>
-        
+
         {error && (
           <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-lg dark:bg-red-900 dark:text-red-100">
             {error}
@@ -129,5 +132,5 @@ export default function OCRV() {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

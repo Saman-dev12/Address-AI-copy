@@ -1,16 +1,16 @@
-import React from 'react'
-import Barcode from './components/barcode'
-import BarcodeScannerComponent from './components/BarcodeScanner'
+import React from "react";
+import Barcode from "./components/barcode";
+import ResponsiveContainer from "@/app/responsive-container";
 
 function OCRVerifier() {
   return (
-    <div className="w-full">
-      <h1 className="text-2xl sm:text-3xl text-center lg:text-left font-bold leading-none mb-6">Barcode Verification</h1>
-      <hr className="my-6" />
-      {/* <Barcode/> */}
-      <BarcodeScannerComponent/>
-    </div>
-  )
+    <ResponsiveContainer
+      heading="Barcode Address"
+      description="Retrieve addresses from barcodes and verify it."
+    >
+      <Barcode />
+    </ResponsiveContainer>
+  );
 }
 
-export default OCRVerifier
+export default OCRVerifier;

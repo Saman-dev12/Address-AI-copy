@@ -1,28 +1,10 @@
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/drizzle";
-import { AuthOptions, DefaultSession } from "next-auth";
+import { AuthOptions } from "next-auth";
 import { companyTable } from "@/db/schema";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
-
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-      name : string;
-      email : string;
-      image : string;
-    } & DefaultSession["user"];
-  }
-}
-
-interface CustomToken{
-  id: string;
-  name : string;
-  email : string;
-  image : string;
-}
 
 export const authOptions: AuthOptions = {
   adapter: DrizzleAdapter(db) as any,
@@ -77,26 +59,11 @@ export const authOptions: AuthOptions = {
           .where(eq(companyTable.email, user.email!))
           .limit(1);
 
-          if (!existingCompany) {
-            throw new Error("User not found");
-          }
-
         return true;
       } catch (error) {
         console.error("Error in signIn callback:", error);
         return false;
       }
     },
-    jwt: async ({ token, user }) => {
-    if (user) {
-      token.user = user;
-    }
-    return token;
-  },
-     async session({ session, token, user }){
-      
-      session.user = token.user as CustomToken;
-      return session;
-    }
   },
 };

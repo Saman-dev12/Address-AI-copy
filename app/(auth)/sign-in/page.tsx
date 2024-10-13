@@ -69,23 +69,23 @@ export default function SignInPage() {
 
   return (
     <div className="bg-black min-h-screen">
-      <div className="max-w-screen-2xl mx-auto w-full bg-black px-4 sm:px-6 lg:px-8">
+      <div className="max-w-screen-2xl mx-auto w-full bg-black px-3 lg:px-14">
         <Header />
-        <main className="flex items-center justify-center py-12 sm:py-16 lg:py-20">
-          <div className="w-full max-w-md px-4 sm:px-0">
+        <main className="flex items-center justify-center py-20">
+          <div className="w-full max-w-md">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-white/5 backdrop-blur-lg rounded-lg shadow-lg p-6 sm:p-8 border border-purple-500/20"
+              className="bg-white/5 backdrop-blur-lg rounded-lg shadow-lg p-8 border border-purple-500/20"
             >
-              <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
+              <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
                 Welcome Back
               </h2>
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-4 sm:space-y-5"
+                  className="space-y-5"
                 >
                   <FormField
                     control={form.control}
@@ -145,7 +145,7 @@ export default function SignInPage() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-purple-500 to-purple-700 text-white hover:opacity-80 transition-all duration-300 py-4 sm:py-5 rounded-md shadow-lg"
+                    className="w-full bg-gradient-to-r from-purple-500 to-purple-700 text-white hover:opacity-80 transition-all duration-300 py-5 rounded-md shadow-lg"
                   >
                     Sign In
                   </Button>
@@ -171,9 +171,9 @@ export default function SignInPage() {
             >
               <Button
                 variant="outline"
-                className="bg-white/5 text-purple-300 border-purple-500/30 hover:bg-purple-500/20 hover:text-purple-300 hover:opacity-80 transition-all duration-300 py-4 sm:py-5 px-6 sm:px-8 rounded-md shadow-lg"
+                className="bg-white/5 text-purple-300 border-purple-500/30 hover:bg-purple-500/20 hover:text-purple-300 hover:opacity-80 transition-all duration-300 py-5 px-8 rounded-md shadow-lg"
               >
-                <Link href="/" className="w-full flex items-center justify-center">
+                <Link href="/" className="w-full flex">
                   <span className="mr-2">Back to Home</span>
                   <ArrowRight size={20} />
                 </Link>

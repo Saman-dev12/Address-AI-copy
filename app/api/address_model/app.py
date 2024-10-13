@@ -24,7 +24,7 @@ def bulk_process_addresses():
     data = request.get_json()
     addresses = data.get("addresses", [])
     results = system.process_addresses_bulk(addresses)
-    return jsonify(results)
+    return jsonify({"data":results})
 
 @app.route('/ocr', methods=['POST'])
 def ocr():
